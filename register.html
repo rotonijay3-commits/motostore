@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MotoStore</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #333;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .register-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex: 1;
+        }
+
+        .form-title {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .links a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .error {
+            color: #f44336;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .password-strength {
+            height: 5px;
+            background: #ddd;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-motorcycle"></i> MotoStore
+            </a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <a href="index.html" style="color: white; text-decoration: none;">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="register-container">
+        <h2 class="form-title">
+            <i class="fas fa-user-plus"></i> Join MotoStore
+        </h2>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" class="form-control" required>
+                <div id="nameError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" required>
+                <div id="emailError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" required>
+                <div id="passwordError" class="error"></div>
+                <div class="password-strength">
+                    <div class="strength-meter" id="strengthMeter"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" class="form-control" required>
+                <div id="confirmError" class="error"></div>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="registerBtn">
+                Create Account
+            </button>
+        </form>
+        
+        <div class="links">
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+            <p><a href="index.html">Continue shopping without registration</a></p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 MotoStore. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvEtSZdrFgbpU-ihwkl3BzC_BJYUVwLGA",
+            authDomain: "motostore-2830f.firebaseapp.com",
+            projectId: "motostore-2830f",
+            storageBucket: "motostore-2830f.firebasestorage.app",
+            messagingSenderId: "633770579692",
+            appId: "1:633770579692:web:5137b43c0746aea48037c9"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Check if already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            // Update meter
+            const meter = document.getElementById('strengthMeter');
+            meter.style.width = strength + '%';
+            meter.style.backgroundColor = 
+                strength < 50 ? '#f44336' : 
+                strength < 75 ? '#ff9800' : '#4CAF50';
+        }
+
+        // Show error
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        // Hide error
+        function hideError(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        // Show toast
+        function showToast(message, type = 'success') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: type === 'success' ? "#4CAF50" : "#f44336",
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        // Handle registration
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const registerBtn = document.getElementById('registerBtn');
+            
+            // Reset errors
+            hideError('nameError');
+            hideError('emailError');
+            hideError('passwordError');
+            hideError('confirmError');
+            
+            // Validate
+            let isValid = true;
+            
+            if (!name) {
+                showError('nameError', 'Name is required');
+                isValid = false;
+            }
+            
+            if (!email) {
+                showError('emailError', 'Email is required');
+                isValid = false;
+            } else if (!/\S+@\S+\.\S+/.test(email)) {
+                showError('emailError', 'Invalid email format');
+                isValid = false;
+            }
+            
+            if (!password) {
+                showError('passwordError', 'Password is required');
+                isValid = false;
+            } else if (password.length < 6) {
+                showError('passwordError', 'Password must be at least 6 characters');
+                isValid = false;
+            }
+            
+            if (!confirmPassword) {
+                showError('confirmError', 'Please confirm your password');
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                showError('confirmError', 'Passwords do not match');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Disable button
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            
+            try {
+                // Create user with Firebase Authentication
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Update display name
+                await user.updateProfile({
+                    displayName: name
+                });
+                
+                // Save additional user data to Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    role: 'customer'
+                });
+                
+                // Create empty cart for user
+                await db.collection('carts').doc(user.uid).set({
+                    items: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('Account created successfully!');
+                
+                // Redirect to home page
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
+            } catch (error) {
+                // Handle errors
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = 'Create Account';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        showError('emailError', 'This email is already registered');
+                        break;
+                    case 'auth/invalid-email':
+                        showError('emailError', 'Invalid email address');
+                        break;
+                    case 'auth/operation-not-allowed':
+                        showError('emailError', 'Email/password accounts are not enabled');
+                        break;
+                    case 'auth/weak-password':
+                        showError('passwordError', 'Password is too weak');
+                        break;
+                    default:
+                        showError('emailError', error.message);
+                }
+                showToast('Registration failed. Please try again.', 'error');
+            }
+        });
+
+        // Password strength real-time check
+        document.getElementById('password').addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+            hideError('passwordError');
+        });
+
+        // Real-time validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            if (this.value && password !== this.value) {
+                showError('confirmError', 'Passwords do not match');
+            } else {
+                hideError('confirmError');
+            }
+        });
+    </script>
+</body>
+</html>

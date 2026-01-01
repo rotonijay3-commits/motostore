@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - MotoStore</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #333;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            flex: 1;
+        }
+
+        .success-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            color: #4CAF50;
+            margin-bottom: 2rem;
+        }
+
+        .success-title {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .success-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .order-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item strong {
+            color: var(--secondary-color);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .order-items {
+            margin-top: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .order-total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #ff8b35;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #444;
+            color: white;
+        }
+
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            opacity: 0.8;
+            border-radius: 50%;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-motorcycle"></i> MotoStore
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <span id="userGreeting" style="color: white;"></span>
+                <a href="#" id="logoutLink" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="success-container">
+        <div class="success-card">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h1 class="success-title">Order Confirmed!</h1>
+            
+            <p class="success-message">
+                Thank you for your purchase! Your order has been successfully placed and is being processed.
+                You will receive a confirmation email shortly.
+            </p>
+            
+            <div class="order-details" id="orderDetails">
+                <!-- Order details will be loaded here -->
+                <div class="loading">Loading order details...</div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="index.html" class="btn-primary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a href="#" class="btn-secondary" onclick="printOrder()">
+                    <i class="fas fa-print"></i> Print Receipt
+                </a>
+            </div>
+            
+            <p style="margin-top: 2rem; color: #666; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> Need help? Contact our support team at support@motostore.com
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 MotoStore. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // User management
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('motostore_user'));
+        }
+
+        function updateUserDisplay() {
+            const user = getCurrentUser();
+            const userGreeting = document.getElementById('userGreeting');
+            const logoutLink = document.getElementById('logoutLink');
+            
+            if (user) {
+                userGreeting.textContent = `Hi, ${user.name || user.email.split('@')[0]}!`;
+                logoutLink.style.display = 'block';
+            } else {
+                userGreeting.textContent = '';
+                logoutLink.style.display = 'none';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('motostore_user');
+            updateUserDisplay();
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        // Load order details from URL parameter
+        function loadOrderDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order');
+            
+            if (!orderNumber) {
+                // No order number in URL, try to get latest order
+                const orders = JSON.parse(localStorage.getItem('motostore_orders')) || [];
+                const latestOrder = orders[orders.length - 1];
+                
+                if (latestOrder) {
+                    displayOrderDetails(latestOrder);
+                } else {
+                    document.getElementById('orderDetails').innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <h3>No order found</h3>
+                            <p>Unable to find order details.</p>
+                            <a href="index.html" class="btn-primary" style="margin-top: 1rem;">Continue Shopping</a>
+                        </div>
+                    `;
+                }
+            } else {
+                // Find order by order number
+                const orders = JSON.parse(localStorage.getItem('motostore_orders')) || [];
+                const order = orders.find(o => o.orderNumber === orderNumber);
+                
+                if (order) {
+                    displayOrderDetails(order);
+                } else {
+                    document.getElementById('orderDetails').innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <h3>Order not found</h3>
+                            <p>Order ${orderNumber} was not found.</p>
+                            <a href="index.html" class="btn-primary" style="margin-top: 1rem;">Continue Shopping</a>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function displayOrderDetails(order) {
+            const container = document.getElementById('orderDetails');
+            
+            // Format date
+            const orderDate = new Date(order.orderDate);
+            const formattedDate = orderDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            container.innerHTML = `
+                <div class="order-info">
+                    <div class="info-item">
+                        <strong>Order Number</strong>
+                        <span>${order.orderNumber}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Order Date</strong>
+                        <span>${formattedDate}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Status</strong>
+                        <span style="color: #4CAF50; font-weight: bold;">${order.status.toUpperCase()}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Payment Method</strong>
+                        <span>${order.payment.method} ending in ${order.payment.last4}</span>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <strong>Shipping Address</strong>
+                    <span>${order.shipping.fullName}<br>
+                    ${order.shipping.address}<br>
+                    ${order.shipping.city}, ${order.shipping.state} ${order.shipping.zipCode}<br>
+                    ${order.shipping.phone}</span>
+                </div>
+                
+                <div class="order-items">
+                    <h4 style="margin-bottom: 1rem;">Order Items</h4>
+                    ${order.items.map(item => `
+                        <div class="order-item">
+                            <span>${item.name} × ${item.quantity}</span>
+                            <span>$${(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                    `).join('')}
+                    <div class="order-total">
+                        Total: $${order.totals.total.toFixed(2)}
+                    </div>
+                </div>
+            `;
+            
+            // Create confetti effect
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b35', '#4CAF50', '#2196F3', '#FFC107'];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    
+                    // Random properties
+                    const size = Math.random() * 10 + 5;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const left = Math.random() * 100;
+                    const duration = Math.random() * 3 + 2;
+                    
+                    confetti.style.width = `${size}px`;
+                    confetti.style.height = `${size}px`;
+                    confetti.style.backgroundColor = color;
+                    confetti.style.left = `${left}vw`;
+                    confetti.style.animation = `confetti-fall ${duration}s linear forwards`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, duration * 1000);
+                }, i * 30);
+            }
+        }
+
+        function printOrder() {
+            window.print();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserDisplay();
+            loadOrderDetails();
+            
+            // Setup logout link
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+        });
+
+        // Make functions available globally
+        window.printOrder = printOrder;
+        window.logout = logout;
+    </script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoStore - Premium Motorcycles</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #333;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-count {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            margin-left: 0.3rem;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1568772585407-9361f9bf3a87');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 6rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .products-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .product-price {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .btn-cart {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 3rem 2rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-motorcycle"></i> MotoStore
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="cart.html" class="cart-link">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                    <span class="cart-count">0</span>
+                </a>
+                <span id="userGreeting" style="color: white;"></span>
+                <a href="login.html" id="loginLink"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="register.html" id="registerLink"><i class="fas fa-user-plus"></i> Register</a>
+                <a href="#" id="logoutLink" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Ride Your Dream</h1>
+            <p>Discover the finest collection of motorcycles from top brands worldwide</p>
+            <a href="#products" class="btn-primary">Browse Motorcycles</a>
+        </div>
+    </section>
+
+    <section id="products">
+        <h2 style="text-align: center; font-size: 2.5rem; margin: 2rem 0;">Featured Motorcycles</h2>
+        <div class="products-grid" id="featuredProducts">
+            <div class="loading">Loading motorcycles...</div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-motorcycle"></i> MotoStore</h3>
+                <p>Your premier destination for premium motorcycles.</p>
+            </div>
+        </div>
+        <div class="footer-bottom" style="text-align: center; padding-top: 2rem; border-top: 1px solid #444;">
+            <p>&copy; 2024 MotoStore. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvEtSZdrFgbpU-ihwkl3BzC_BJYUVwLGA",
+            authDomain: "motostore-2830f.firebaseapp.com",
+            projectId: "motostore-2830f",
+            storageBucket: "motostore-2830f.firebasestorage.app",
+            messagingSenderId: "633770579692",
+            appId: "1:633770579692:web:5137b43c0746aea48037c9"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global Variables
+        let currentUser = null;
+        let cart = [];
+
+        // Initialize Authentication
+        function initAuth() {
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+                updateAuthUI();
+                if (user) {
+                    loadUserCart(user.uid);
+                } else {
+                    loadLocalCart();
+                }
+            });
+        }
+
+        // Update UI based on auth state
+        function updateAuthUI() {
+            const userGreeting = document.getElementById('userGreeting');
+            const loginLink = document.getElementById('loginLink');
+            const registerLink = document.getElementById('registerLink');
+            const logoutLink = document.getElementById('logoutLink');
+            
+            if (currentUser) {
+                userGreeting.textContent = `Hi, ${currentUser.displayName || currentUser.email.split('@')[0]}!`;
+                loginLink.style.display = 'none';
+                registerLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+            } else {
+                userGreeting.textContent = '';
+                loginLink.style.display = 'block';
+                registerLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+        }
+
+        // Load cart from Firestore (logged in users)
+        async function loadUserCart(userId) {
+            try {
+                const cartDoc = await db.collection('carts').doc(userId).get();
+                if (cartDoc.exists) {
+                    cart = cartDoc.data().items || [];
+                } else {
+                    cart = [];
+                }
+                updateCartCount();
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                loadLocalCart();
+            }
+        }
+
+        // Load cart from localStorage (guests)
+        function loadLocalCart() {
+            const savedCart = localStorage.getItem('motostore_guest_cart');
+            cart = savedCart ? JSON.parse(savedCart) : [];
+            updateCartCount();
+        }
+
+        // Save cart
+        async function saveCart() {
+            if (currentUser) {
+                // Save to Firestore
+                try {
+                    await db.collection('carts').doc(currentUser.uid).set({
+                        items: cart,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.error('Error saving cart:', error);
+                }
+            } else {
+                // Save to localStorage
+                localStorage.setItem('motostore_guest_cart', JSON.stringify(cart));
+            }
+            updateCartCount();
+        }
+
+        // Add item to cart
+        async function addToCart(product) {
+            const existingItem = cart.find(item => item.id === product.id);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            await saveCart();
+            showToast(`${product.name} added to cart!`);
+        }
+
+        // Update cart count display
+        function updateCartCount() {
+            const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = cartCount;
+            });
+        }
+
+        // Load products from Firestore
+        async function loadProducts() {
+            const container = document.getElementById('featuredProducts');
+            
+            try {
+                const snapshot = await db.collection('products').limit(8).get();
+                
+                if (!snapshot.empty) {
+                    const products = [];
+                    snapshot.forEach(doc => {
+                        products.push({ id: doc.id, ...doc.data() });
+                    });
+                    displayProducts(products);
+                } else {
+                    // If no products in database, add some sample products
+                    await addSampleProducts();
+                    loadProducts(); // Reload after adding
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                container.innerHTML = '<div class="loading">Error loading products. Please refresh.</div>';
+            }
+        }
+
+        // Add sample products if database is empty
+        async function addSampleProducts() {
+            const sampleProducts = [
+                {
+                    name: "Harley-Davidson Street Glide",
+                    brand: "Harley-Davidson",
+                    price: 21999,
+                    description: "The iconic bagger with premium features",
+                    category: "cruiser",
+                    featured: true,
+                    inStock: true,
+                    images: ["https://images.unsplash.com/photo-1568772585407-9361f9bf3a87"]
+                },
+                {
+                    name: "Ducati Panigale V4",
+                    brand: "Ducati",
+                    price: 23995,
+                    description: "Race-bred super sport motorcycle",
+                    category: "sport",
+                    featured: true,
+                    inStock: true,
+                    images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39"]
+                },
+                {
+                    name: "BMW R 1250 GS",
+                    brand: "BMW",
+                    price: 17695,
+                    description: "Adventure touring motorcycle",
+                    category: "adventure",
+                    featured: true,
+                    inStock: true,
+                    images: ["https://images.unsplash.com/photo-1517846693594-1567da72af75"]
+                }
+            ];
+
+            try {
+                for (const product of sampleProducts) {
+                    await db.collection('products').add(product);
+                }
+                showToast('Sample products added to database');
+            } catch (error) {
+                console.error('Error adding sample products:', error);
+            }
+        }
+
+        // Display products
+        function displayProducts(products) {
+            const container = document.getElementById('featuredProducts');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="loading">No products available</div>';
+                return;
+            }
+            
+            container.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <img src="${product.images ? product.images[0] : 'https://via.placeholder.com/300x200'}" 
+                         alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <div style="color: #666; font-size: 0.9rem;">${product.brand || 'Motorcycle'}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <div style="color: #666; font-size: 0.9rem; margin: 0.5rem 0;">${product.description || ''}</div>
+                        <div class="product-price">$${product.price ? product.price.toLocaleString() : '0'}</div>
+                        <button class="btn-cart" onclick="addToCart(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await auth.signOut();
+                cart = [];
+                updateCartCount();
+                showToast('Logged out successfully');
+            } catch (error) {
+                console.error('Error logging out:', error);
+                showToast('Error logging out', 'error');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            if (typeof Toastify !== 'undefined') {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "bottom",
+                    position: "right",
+                    backgroundColor: type === 'success' ? "#4CAF50" : "#f44336",
+                    stopOnFocus: true
+                }).showToast();
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initAuth();
+            loadProducts();
+            
+            // Setup logout link
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+        });
+
+        // Make functions available globally
+        window.addToCart = addToCart;
+        window.logout = logout;
+    </script>
+</body>
+</html>

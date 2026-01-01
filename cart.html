@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - MotoStore</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #333;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-count {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            margin-left: 0.3rem;
+        }
+
+        .checkout-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkout-title {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            grid-column: 1 / -1;
+        }
+
+        .checkout-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .order-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .order-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .summary-row.total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-top: 2px solid #eee;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: #ff8b35;
+        }
+
+        .login-required {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        .login-required a {
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-motorcycle"></i> MotoStore
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="cart.html" class="cart-link">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                    <span class="cart-count">0</span>
+                </a>
+                <span id="userGreeting" style="color: white;"></span>
+                <a href="login.html" id="loginLink"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="register.html" id="registerLink"><i class="fas fa-user-plus"></i> Register</a>
+                <a href="#" id="logoutLink" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="checkout-container">
+        <h1 class="checkout-title"><i class="fas fa-shopping-bag"></i> Checkout</h1>
+        
+        <div id="loginRequiredMessage" class="login-required" style="display: none;">
+            <h3><i class="fas fa-exclamation-circle"></i> Login Required</h3>
+            <p>You need to be logged in to complete your purchase.</p>
+            <p style="margin-top: 1rem;">
+                <a href="login.html?redirect=checkout.html" class="btn-primary" style="display: inline-block; width: auto; padding: 0.75rem 1.5rem;">Login to Continue</a>
+            </p>
+            <p style="margin-top: 1rem;">Don't have an account? <a href="register.html">Create one here</a></p>
+        </div>
+        
+        <div id="checkoutForm" style="display: none;">
+            <!-- Shipping Address -->
+            <div class="checkout-section">
+                <h3 class="section-title"><i class="fas fa-truck"></i> Shipping Information</h3>
+                <form id="shippingForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zipCode">ZIP Code</label>
+                            <input type="text" id="zipCode" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" class="form-control" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="checkout-section">
+                <h3 class="section-title"><i class="fas fa-credit-card"></i> Payment Details</h3>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryDate">Expiry Date</label>
+                            <input type="text" id="expiryDate" class="form-control" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" class="form-control" placeholder="123" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cardName">Name on Card</label>
+                        <input type="text" id="cardName" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h3 class="section-title"><i class="fas fa-receipt"></i> Order Summary</h3>
+            
+            <div class="order-items" id="orderItems">
+                <!-- Order items will be loaded here -->
+            </div>
+            
+            <div id="orderTotals">
+                <!-- Order totals will be loaded here -->
+            </div>
+            
+            <button class="btn-primary" id="placeOrderBtn" onclick="placeOrder()">
+                <i class="fas fa-lock"></i> Place Order
+            </button>
+            
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script>
+        // User management
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('motostore_user'));
+        }
+
+        function updateUserDisplay() {
+            const user = getCurrentUser();
+            const userGreeting = document.getElementById('userGreeting');
+            const loginLink = document.getElementById('loginLink');
+            const registerLink = document.getElementById('registerLink');
+            const logoutLink = document.getElementById('logoutLink');
+            
+            if (user) {
+                userGreeting.textContent = `Hi, ${user.name || user.email.split('@')[0]}!`;
+                loginLink.style.display = 'none';
+                registerLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+                
+                // Pre-fill shipping form with user info
+                if (user.name) {
+                    document.getElementById('fullName').value = user.name;
+                    document.getElementById('cardName').value = user.name;
+                }
+                if (user.email) {
+                    // You could add an email field if needed
+                }
+            } else {
+                userGreeting.textContent = '';
+                loginLink.style.display = 'block';
+                registerLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('motostore_user');
+            updateUserDisplay();
+            showToast('Logged out successfully');
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        // Cart Management
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('motostore_cart')) || [];
+            const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = cartCount;
+            });
+        }
+
+        // Load order from localStorage
+        function loadOrder() {
+            const user = getCurrentUser();
+            const loginRequiredMessage = document.getElementById('loginRequiredMessage');
+            const checkoutForm = document.getElementById('checkoutForm');
+            const order = JSON.parse(localStorage.getItem('motostore_current_order'));
+            
+            // Check if user is logged in
+            if (!user) {
+                loginRequiredMessage.style.display = 'block';
+                checkoutForm.style.display = 'none';
+                document.getElementById('placeOrderBtn').style.display = 'none';
+                return null;
+            }
+            
+            // Check if there's an order
+            if (!order) {
+                showToast('No items to checkout', 'error');
+                setTimeout(() => {
+                    window.location.href = 'cart.html';
+                }, 1500);
+                return null;
+            }
+            
+            // User is logged in and has an order
+            loginRequiredMessage.style.display = 'none';
+            checkoutForm.style.display = 'block';
+            
+            return order;
+        }
+
+        // Display order items
+        function displayOrderItems(order) {
+            const container = document.getElementById('orderItems');
+            const totalsContainer = document.getElementById('orderTotals');
+            
+            if (!container || !totalsContainer) return;
+            
+            container.innerHTML = order.items.map(item => `
+                <div class="order-item">
+                    <span>${item.name} × ${item.quantity}</span>
+                    <span>$${(item.price * item.quantity).toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            totalsContainer.innerHTML = `
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>$${order.totals.subtotal.toFixed(2)}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>${order.totals.shipping === 0 ? 'FREE' : `$${order.totals.shipping.toFixed(2)}`}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span>$${order.totals.tax.toFixed(2)}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>$${order.totals.total.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        // Place order function
+        function placeOrder() {
+            const user = getCurrentUser();
+            const order = JSON.parse(localStorage.getItem('motostore_current_order'));
+            
+            if (!user) {
+                showToast('Please login to place order', 'error');
+                window.location.href = 'login.html?redirect=checkout.html';
+                return;
+            }
+            
+            if (!order) {
+                showToast('No items to order', 'error');
+                window.location.href = 'cart.html';
+                return;
+            }
+            
+            // Get form data
+            const shippingData = {
+                fullName: document.getElementById('fullName').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zipCode').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            const paymentData = {
+                cardNumber: document.getElementById('cardNumber').value,
+                expiryDate: document.getElementById('expiryDate').value,
+                cvv: document.getElementById('cvv').value,
+                cardName: document.getElementById('cardName').value
+            };
+            
+            // Validate form
+            if (!shippingData.fullName || !shippingData.address || !shippingData.city || 
+                !shippingData.state || !shippingData.zipCode || !shippingData.phone) {
+                showToast('Please fill in all shipping information', 'error');
+                return;
+            }
+            
+            if (!paymentData.cardNumber || !paymentData.expiryDate || !paymentData.cvv || !paymentData.cardName) {
+                showToast('Please fill in all payment information', 'error');
+                return;
+            }
+            
+            // Simulate payment processing
+            showToast('Processing payment...', 'info');
+            
+            // Create final order
+            const finalOrder = {
+                ...order,
+                shipping: shippingData,
+                payment: {
+                    last4: paymentData.cardNumber.slice(-4),
+                    method: 'Credit Card'
+                },
+                status: 'completed',
+                orderDate: new Date().toISOString(),
+                orderNumber: 'MOTO-' + Date.now()
+            };
+            
+            // Save order to localStorage (in a real app, this would go to a database)
+            let orders = JSON.parse(localStorage.getItem('motostore_orders')) || [];
+            orders.push(finalOrder);
+            localStorage.setItem('motostore_orders', JSON.stringify(orders));
+            
+            // Clear cart and current order
+            localStorage.removeItem('motostore_cart');
+            localStorage.removeItem('motostore_current_order');
+            
+            // Update cart count
+            updateCartCount();
+            
+            // Redirect to success page
+            setTimeout(() => {
+                window.location.href = 'checkout-success.html?order=' + finalOrder.orderNumber;
+            }, 2000);
+        }
+
+        function showToast(message, type = 'success') {
+            if (typeof Toastify !== 'undefined') {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "bottom",
+                    position: "right",
+                    backgroundColor: type === 'success' ? "#4CAF50" : 
+                                   type === 'error' ? "#f44336" : 
+                                   type === 'info' ? "#2196F3" : "#4CAF50",
+                    stopOnFocus: true
+                }).showToast();
+            } else {
+                alert(message);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            updateUserDisplay();
+            
+            const order = loadOrder();
+            if (order) {
+                displayOrderItems(order);
+            }
+            
+            // Setup logout link
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+        });
+
+        // Make functions available globally
+        window.placeOrder = placeOrder;
+        window.logout = logout;
+    </script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MotoStore</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #333;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex: 1;
+        }
+
+        .form-title {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .links a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .error {
+            color: #f44336;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .demo-credentials {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-motorcycle"></i> MotoStore
+            </a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <a href="index.html" style="color: white; text-decoration: none;">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <h2 class="form-title">
+            <i class="fas fa-sign-in-alt"></i> Login to MotoStore
+        </h2>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" required>
+                <div id="emailError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" required>
+                <div id="passwordError" class="error"></div>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="loginBtn">
+                Login
+            </button>
+        </form>
+        
+        <div class="demo-credentials">
+            <h4><i class="fas fa-info-circle"></i> Test Account</h4>
+            <p><strong>Email:</strong> test@test.com</p>
+            <p><strong>Password:</strong> test123</p>
+        </div>
+        
+        <div class="links">
+            <p>Don't have an account? <a href="register.html">Register here</a></p>
+            <p><a href="index.html">Continue shopping without login</a></p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 MotoStore. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvEtSZdrFgbpU-ihwkl3BzC_BJYUVwLGA",
+            authDomain: "motostore-2830f.firebaseapp.com",
+            projectId: "motostore-2830f",
+            storageBucket: "motostore-2830f.firebasestorage.app",
+            messagingSenderId: "633770579692",
+            appId: "1:633770579692:web:5137b43c0746aea48037c9"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check if already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Redirect based on URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect') || 'index.html';
+                window.location.href = redirect;
+            }
+        });
+
+        // Show error
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        // Hide error
+        function hideError(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        // Show toast
+        function showToast(message, type = 'success') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: type === 'success' ? "#4CAF50" : "#f44336",
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        // Handle login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Reset errors
+            hideError('emailError');
+            hideError('passwordError');
+            
+            // Validate
+            if (!email) {
+                showError('emailError', 'Email is required');
+                return;
+            }
+            if (!password) {
+                showError('passwordError', 'Password is required');
+                return;
+            }
+            
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            
+            try {
+                // Sign in with Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                showToast('Login successful!');
+                
+                // Redirect
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect') || 'index.html';
+                setTimeout(() => {
+                    window.location.href = redirect;
+                }, 1000);
+                
+            } catch (error) {
+                // Handle errors
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Login';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        showError('emailError', 'Invalid email address');
+                        break;
+                    case 'auth/user-disabled':
+                        showError('emailError', 'This account has been disabled');
+                        break;
+                    case 'auth/user-not-found':
+                        showError('emailError', 'No account found with this email');
+                        break;
+                    case 'auth/wrong-password':
+                        showError('passwordError', 'Incorrect password');
+                        break;
+                    default:
+                        showError('emailError', error.message);
+                }
+                showToast('Login failed. Please check your credentials.', 'error');
+            }
+        });
+
+        // Auto-fill test account
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').value = 'test@test.com';
+            document.getElementById('password').value = 'test123';
+        });
+    </script>
+</body>
+</html>
